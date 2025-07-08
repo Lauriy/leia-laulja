@@ -1,0 +1,14 @@
+[project]
+name = "leia-laulja"
+version = "0.1.0"
+description = "Leiab Iseoma videost (https://www.teliatv.ee/saade/34368457/1/xxviii-laulupidu-iseoma-suurkontsert) kõik näod"
+requires-python = "==3.11.*"
+dependencies = [
+    "insightface",
+    "onnxruntime-gpu",
+]
+
+[dependency-groups]
+dev = [
+    "ruff",
+]
