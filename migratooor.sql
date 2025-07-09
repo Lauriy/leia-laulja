@@ -21,3 +21,13 @@ CREATE INDEX IF NOT EXISTS idx_face_assignments_cluster ON face_assignments(clus
 CREATE INDEX IF NOT EXISTS idx_face_assignments_confidence ON face_assignments(confidence);
 CREATE INDEX IF NOT EXISTS idx_face_assignments_frame_number ON face_assignments(frame_number);
 CREATE INDEX IF NOT EXISTS idx_face_assignments_timestamp ON face_assignments(timestamp);
+
+ALTER TABLE face_clusters ADD COLUMN merge_attempted TIMESTAMP NULL;
+
+CREATE INDEX IF NOT EXISTS idx_face_clusters_merge_attempted ON face_clusters(merge_attempted);
+
+ALTER TABLE face_assignments ADD COLUMN blur_score REAL;
+
+CREATE INDEX IF NOT EXISTS idx_face_assignments_blur_score ON face_assignments(blur_score);
+
+ALTER TABLE face_clusters ADD COLUMN representative_thumbnail TEXT NULL;

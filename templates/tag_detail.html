@@ -13,7 +13,7 @@
         <div class="cluster-card">
             <a href="/cluster/{{ cluster.cluster_id }}/" class="cluster-link">
                 {% if cluster.representative_thumbnail %}
-                    <img src="/thumbnails/{{ cluster.representative_thumbnail }}" alt="Cluster {{ cluster.cluster_id }}">
+                    <img src="/{{ cluster.representative_thumbnail }}" alt="Cluster {{ cluster.cluster_id }}">
                 {% else %}
                     <div style="height: 150px; background: #eee; display: flex; align-items: center; justify-content: center;">
                         No thumbnail

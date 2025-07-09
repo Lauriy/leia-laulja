@@ -9,6 +9,7 @@ dependencies = [
     "nanodjango",
     "ijson",
     "psutil",
+    "cupy-cuda12x",
 ]
 
 [dependency-groups]

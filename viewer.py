@@ -5,8 +5,10 @@ from django.core.paginator import Paginator
 from django.db import models
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
+from django.urls import path
 from nanodjango import Django
-from django.contrib import messages
+from django.contrib import messages, admin
+from nanodjango.urls import urlpatterns
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -23,6 +25,7 @@ app = Django(
     MEDIA_ROOT=os.path.join(BASE_DIR, "face_thumbnails"),
     MEDIA_URL="/face_thumbnails/",
     INSTALLED_APPS=[
+        "django.contrib.admin",
         "django.contrib.auth",
         "django.contrib.contenttypes",
         "django.contrib.sessions",
@@ -60,6 +63,8 @@ class FaceCluster(models.Model):
     representative_embedding = models.BinaryField()
     face_count = models.IntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
+    merge_attempted = models.DateTimeField(null=True, blank=True)
+    representative_thumbnail = models.CharField(max_length=500, null=True, blank=True)
     tags = models.ManyToManyField(Tag, blank=True, related_name="clusters")
 
     class Meta:
@@ -82,10 +87,16 @@ class FaceAssignment(models.Model):
     bbox_y1 = models.IntegerField()
     bbox_x2 = models.IntegerField()
     bbox_y2 = models.IntegerField()
+    blur_score = models.FloatField(null=True, blank=True)
 
     class Meta:
         db_table = "face_assignments"
         managed = False
+
+
+urlpatterns += [
+    path("admin/", admin.site.urls),
+]
 
 
 @app.route("/")
