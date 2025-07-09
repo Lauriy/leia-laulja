@@ -19,3 +19,4 @@ CREATE INDEX IF NOT EXISTS idx_face_clusters_tags_tag ON face_clusters_tags(tag_
 CREATE INDEX IF NOT EXISTS idx_face_clusters_face_count ON face_clusters(face_count);
 CREATE INDEX IF NOT EXISTS idx_face_assignments_cluster ON face_assignments(cluster_id);
 CREATE INDEX IF NOT EXISTS idx_face_assignments_confidence ON face_assignments(confidence);
+CREATE INDEX IF NOT EXISTS idx_face_assignments_frame_number ON face_assignments(frame_number);

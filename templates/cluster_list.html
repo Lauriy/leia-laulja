@@ -1,32 +1,29 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Face Clusters</title>
-    <link rel="preload" as="style" href="/static/style.css" media="screen">
-</head>
-<body>
-    <h1>Face Clusters ({{ total_clusters }} total)</h1>
+{% extends "base.html" %}
 
-    <div class="cluster-grid">
-        {% for cluster in clusters %}
-        <div class="cluster-card">
-            <h3>Cluster {{ cluster.cluster_id }}</h3>
-            <p>{{ cluster.face_count }} faces</p>
-            <a href="/cluster/{{ cluster.cluster_id }}/">View Details</a>
-        </div>
-        {% endfor %}
+{% block title %}Face Clusters - Leia Laulja{% endblock %}
+
+{% block content %}
+<h1>Face Clusters ({{ total_clusters }} total)</h1>
+
+<div class="cluster-grid">
+    {% for cluster in clusters %}
+    <div class="cluster-card">
+        <h3>Cluster {{ cluster.cluster_id }}</h3>
+        <p>{{ cluster.face_count }} faces</p>
+        <a href="/cluster/{{ cluster.cluster_id }}/">View Details</a>
     </div>
+    {% endfor %}
+</div>
 
-    <div class="pagination">
-        {% if clusters.has_previous %}
-            <a href="?page={{ clusters.previous_page_number }}">&laquo; Previous</a>
-        {% endif %}
+<div class="pagination">
+    {% if clusters.has_previous %}
+        <a href="?page={{ clusters.previous_page_number }}">&laquo; Previous</a>
+    {% endif %}
 
-        Page {{ clusters.number }} of {{ clusters.paginator.num_pages }}
+    Page {{ clusters.number }} of {{ clusters.paginator.num_pages }}
 
-        {% if clusters.has_next %}
-            <a href="?page={{ clusters.next_page_number }}">Next &raquo;</a>
-        {% endif %}
-    </div>
-</body>
-</html>
+    {% if clusters.has_next %}
+        <a href="?page={{ clusters.next_page_number }}">Next &raquo;</a>
+    {% endif %}
+</div>
+{% endblock %}

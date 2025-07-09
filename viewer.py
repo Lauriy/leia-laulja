@@ -8,7 +8,6 @@ from django.shortcuts import render, get_object_or_404, redirect
 from nanodjango import Django
 from django.contrib import messages
 
-
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 app = Django(
@@ -24,7 +23,6 @@ app = Django(
     MEDIA_ROOT=os.path.join(BASE_DIR, "face_thumbnails"),
     MEDIA_URL="/face_thumbnails/",
     INSTALLED_APPS=[
-        "django.contrib.admin",
         "django.contrib.auth",
         "django.contrib.contenttypes",
         "django.contrib.sessions",
@@ -115,7 +113,7 @@ def cluster_list(request):
 def cluster_detail(request, cluster_id):
     """View faces in a specific cluster"""
     cluster = get_object_or_404(FaceCluster, cluster_id=cluster_id)
-    faces = FaceAssignment.objects.filter(cluster=cluster).order_by("-confidence")
+    faces = FaceAssignment.objects.filter(cluster=cluster).order_by("frame_number")
 
     paginator = Paginator(faces, 100)
     page = request.GET.get("page")
@@ -230,9 +228,21 @@ def search_tags(request):
 
 @app.route("/tags/")
 def tag_list(request):
-    """List all tags"""
-    tags = Tag.objects.all()
-    return render(request, "tag_list.html", {"tags": tags})
+    """List all tags with pagination"""
+    tags = Tag.objects.all().order_by("name")
+
+    paginator = Paginator(tags, 100)
+    page = request.GET.get("page")
+    tags_page = paginator.get_page(page)
+
+    return render(
+        request,
+        "tag_list.html",
+        {
+            "tags": tags_page,
+            "total_tags": Tag.objects.count(),
+        },
+    )
 
 
 if __name__ == "__main__":
