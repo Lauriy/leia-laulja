@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cluster {{ cluster.cluster_id }}</title>
+    <link rel="preload" as="style" href="/static/style.css" media="screen">
+</head>
+<body>
+    <div class="cluster-info">
+        <h1>Cluster {{ cluster.cluster_id }}
+            {% if user.is_staff %}
+                <button onclick="deleteCluster()" class="delete-btn">🗑️ Delete Cluster</button>
+            {% endif %}
+        </h1>
+        <p>{{ cluster.face_count }} faces total</p>
+        <a href="/">&laquo; Back to clusters</a>
+    </div>
+
+    <!-- Tagging Form -->
+    <div class="tag-form">
+        <h3>Tag this cluster</h3>
+        <div style="position: relative;">
+            <input type="text" id="tag-input" class="tag-input" placeholder="Enter person name or tag..." autocomplete="off">
+            <button id="add-tag-btn" class="tag-btn">Add Tag</button>
+            <div id="autocomplete-suggestions" class="autocomplete-suggestions" style="display: none;"></div>
+        </div>
+
+        <div class="existing-tags">
+            <strong>Current tags:</strong>
+            {% for tag in cluster.tags.all %}
+                <a href="/tag/{{ tag.id }}/" class="tag">{{ tag.name }}</a>
+            {% empty %}
+                <span>No tags yet</span>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="face-grid">
+        {% for face in faces %}
+        <div class="face-item">
+            <img src="/{{ face.thumbnail_path }}" alt="Face {{ face.face_id }}">
+            <div>{{ face.timestamp }}</div>
+            <div>Confidence: {{ face.confidence|floatformat:2 }}</div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="pagination">
+        {% if faces.has_previous %}
+            <a href="?page={{ faces.previous_page_number }}">&laquo; Previous</a>
+        {% endif %}
+        Page {{ faces.number }} of {{ faces.paginator.num_pages }}
+        {% if faces.has_next %}
+            <a href="?page={{ faces.next_page_number }}">Next &raquo;</a>
+        {% endif %}
+    </div>
+
+    <script>
+        const tagInput = document.getElementById('tag-input');
+        const addTagBtn = document.getElementById('add-tag-btn');
+        const suggestions = document.getElementById('autocomplete-suggestions');
+
+        let timeout;
+
+        // Autocomplete functionality
+        tagInput.addEventListener('input', function() {
+            clearTimeout(timeout);
+            const query = this.value.trim();
+
+            if (query.length < 2) {
+                suggestions.style.display = 'none';
+                return;
+            }
+
+            timeout = setTimeout(() => {
+                fetch(`/api/tags/search/?q=${encodeURIComponent(query)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        suggestions.innerHTML = '';
+                        if (data.tags.length > 0) {
+                            data.tags.forEach(tag => {
+                                const div = document.createElement('div');
+                                div.className = 'autocomplete-suggestion';
+                                div.textContent = tag;
+                                div.addEventListener('click', () => {
+                                    tagInput.value = tag;
+                                    suggestions.style.display = 'none';
+                                });
+                                suggestions.appendChild(div);
+                            });
+                            suggestions.style.display = 'block';
+                        } else {
+                            suggestions.style.display = 'none';
+                        }
+                    });
+            }, 300);
+        });
+
+        // Hide suggestions when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.tag-form')) {
+                suggestions.style.display = 'none';
+            }
+        });
+
+        // Add tag functionality
+        addTagBtn.addEventListener('click', function() {
+            const tagName = tagInput.value.trim();
+            if (!tagName) return;
+
+            fetch(`/cluster/{{ cluster.cluster_id }}/add_tag/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: `tag_name=${encodeURIComponent(tagName)}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload(); // Refresh to show new tag
+                } else {
+                    alert('Error adding tag: ' + data.error);
+                }
+            });
+        });
+
+        // Allow Enter key to add tag
+        tagInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addTagBtn.click();
+            }
+        });
+
+        // Delete cluster functionality
+        function deleteCluster() {
+            if (confirm(`Are you sure you want to delete cluster {{ cluster.cluster_id }}?\n\nThis will permanently delete:\n- The cluster and all its face assignments\n- All {{ cluster.face_count }} thumbnail images\n\nThis action cannot be undone!`)) {
+                // Create a form and submit it
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/cluster/{{ cluster.cluster_id }}/delete/';
+
+                // Add CSRF token
+                const csrfInput = document.createElement('input');
+                csrfInput.type = 'hidden';
+                csrfInput.name = 'csrfmiddlewaretoken';
+                csrfInput.value = '{{ csrf_token }}';
+                form.appendChild(csrfInput);
+
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+    </script>
+</body>
+</html>

@@ -6,9 +6,17 @@ requires-python = ">=3.13"
 dependencies = [
     "insightface",
     "onnxruntime-gpu",
+    "nanodjango",
+    "ijson",
+    "psutil",
 ]
 
 [dependency-groups]
 dev = [
     "ruff",
+]
+
+[tool.ruff]
+exclude = [
+    "estonian_song_festival_faces.json", # Mine is 18.7 GB
 ]

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>All Tags</title>
+    <link rel="preload" as="style" href="/static/style.css" media="screen">
+</head>
+<body>
+    <a href="/" class="back-link">← Back to all clusters</a>
+
+    <div class="page-header">
+        <h1 class="page-title">All Tags</h1>
+        <div class="stats">{{ tags.paginator.count }} tag{{ tags.paginator.count|pluralize }} total</div>
+    </div>
+
+    {% if tags %}
+        <div class="tags-grid">
+            {% for tag in tags %}
+                <div class="tag-card">
+                    <a href="{% url 'tag_detail' tag.id %}">{{ tag.name }}</a>
+                    <div class="tag-info">
+                        {{ tag.cluster_count }} cluster{{ tag.cluster_count|pluralize }}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination">
+            {% if tags.has_previous %}
+                <a href="?page=1">first</a>
+                <a href="?page={{ tags.previous_page_number }}">previous</a>
+            {% endif %}
+
+            <span class="current">
+                Page {{ tags.number }} of {{ tags.paginator.num_pages }}
+            </span>
+
+            {% if tags.has_next %}
+                <a href="?page={{ tags.next_page_number }}">next</a>
+                <a href="?page={{ tags.paginator.num_pages }}">last</a>
+            {% endif %}
+        </div>
+    {% else %}
+        <div class="no-tags">
+            <p>No tags created yet.</p>
+            <p><a href="/">Browse clusters</a> to start tagging faces!</p>
+        </div>
+    {% endif %}
+</body>
+</html>

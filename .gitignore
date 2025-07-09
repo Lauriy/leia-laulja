@@ -4,3 +4,5 @@
 /face_thumbnails/
 /face_detection.log
 /intermediate_results_chunk_*.json
+/estonian_song_festival_faces.json
+/face_groups.db

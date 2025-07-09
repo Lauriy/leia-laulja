@@ -1,0 +1,74 @@
+upstream django_leia_laulja {
+    server 127.0.0.1:8123;
+}
+
+server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+    server_name leia-laulja.indoorsman.ee;
+
+    ssl_certificate /etc/letsencrypt/live/leia-laulja.indoorsman.ee/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/leia-laulja.indoorsman.ee/privkey.pem;
+    ssl_trusted_certificate /etc/letsencrypt/live/leia-laulja.indoorsman.ee/chain.pem;
+
+    include nginxconfig.io/security.conf;
+
+    # Serve thumbnails directly from nginx with optimal caching
+    location /thumbnails/ {
+        alias /home/lauri/leia-laulja/face_thumbnails/;
+
+        # Optimal caching for thumbnails
+        expires 1y;
+        add_header Cache-Control "public, immutable, no-transform";
+
+        # Compression
+        gzip on;
+        gzip_vary on;
+        gzip_types image/jpeg image/png;
+
+        # Security headers
+        add_header X-Content-Type-Options nosniff;
+        add_header X-Frame-Options DENY;
+
+        # Handle missing files gracefully
+        try_files $uri =404;
+
+        # Optimize for many small files
+        sendfile on;
+        tcp_nopush on;
+        tcp_nodelay on;
+    }
+
+    location /static/ {
+        alias /home/lauri/leia-laulja/static/;
+        # expires 1y;
+        # add_header Cache-Control "public, immutable, no-transform";
+    }
+
+    location / {
+        proxy_pass http://django_leia_laulja;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        # Timeouts
+        proxy_connect_timeout 60s;
+        proxy_send_timeout 60s;
+        proxy_read_timeout 60s;
+    }
+
+    include nginxconfig.io/general.conf;
+}
+
+server {
+    listen 80;
+    listen [::]:80;
+    server_name .leia-laulja.indoorsman.ee;
+
+    include nginxconfig.io/letsencrypt.conf;
+
+    location / {
+        return 301 https://leia-laulja.indoorsman.ee$request_uri;
+    }
+}

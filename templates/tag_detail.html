@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tag: {{ tag.name }}</title>
+    <link rel="preload" as="style" href="/static/style.css" media="screen">
+</head>
+<body>
+    <a href="/" class="back-link">← Back to all clusters</a>
+
+    <div class="tag-header">
+        <h1 class="tag-title">Tag: "{{ tag.name }}"</h1>
+        <p>{{ clusters.paginator.count }} cluster{{ clusters.paginator.count|pluralize }} with this tag</p>
+    </div>
+
+    <div class="clusters-grid">
+        {% for cluster in clusters %}
+            <div class="cluster-card">
+                <a href="/cluster/{{ cluster.cluster_id }}/" class="cluster-link">
+                    {% if cluster.representative_thumbnail %}
+                        <img src="/thumbnails/{{ cluster.representative_thumbnail }}" alt="Cluster {{ cluster.cluster_id }}">
+                    {% else %}
+                        <div style="height: 150px; background: #eee; display: flex; align-items: center; justify-content: center;">
+                            No thumbnail
+                        </div>
+                    {% endif %}
+                    <div class="cluster-info">
+                        <strong>Cluster {{ cluster.cluster_id }}</strong><br>
+                        {{ cluster.face_count }} face{{ cluster.face_count|pluralize }}
+                    </div>
+                </a>
+            </div>
+        {% empty %}
+            <p>No clusters found with this tag.</p>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination">
+        {% if clusters.has_previous %}
+            <a href="?page={{ clusters.previous_page_number }}">&laquo; Previous</a>
+        {% endif %}
+
+        {% for page_num in clusters.paginator.page_range %}
+            {% if page_num == clusters.number %}
+                <span class="current">{{ page_num }}</span>
+            {% elif page_num > clusters.number|add:'-3' and page_num < clusters.number|add:'3' %}
+                <a href="?page={{ page_num }}">{{ page_num }}</a>
+            {% endif %}
+        {% endfor %}
+
+        {% if clusters.has_next %}
+            <a href="?page={{ clusters.next_page_number }}">Next &raquo;</a>
+        {% endif %}
+    </div>
+</body>
+</html>

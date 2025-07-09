@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Delete Cluster {{ cluster.cluster_id }}</title>
+    <link rel="preload" as="style" href="/static/style.css" media="screen">
+</head>
+<body>
+    <div class="delete-confirmation">
+        <h1>⚠️ Delete Cluster {{ cluster.cluster_id }}</h1>
+
+        <div class="warning">
+            <strong>Warning:</strong> This action cannot be undone!
+        </div>
+
+        <h3>This will permanently delete:</h3>
+        <ul>
+            <li><strong>{{ cluster.face_count }}</strong> face assignments from the database</li>
+            <li><strong>{{ cluster.face_count }}</strong> thumbnail image files from disk</li>
+            <li>The cluster record itself</li>
+            <li>All associated tags and metadata</li>
+        </ul>
+
+        <h3>Preview of faces in this cluster:</h3>
+        <div class="cluster-preview">
+            {% for face in cluster.face_assignments.all|slice:":10" %}
+                {% if face.thumbnail_path %}
+                    <img src="/face_thumbnails/{{ face.thumbnail_path }}" alt="Face thumbnail">
+                {% endif %}
+            {% endfor %}
+            {% if cluster.face_count > 10 %}
+                <div style="display: flex; align-items: center; font-size: 14px; color: #666;">
+                    ... and {{ cluster.face_count|add:"-10" }} more faces
+                </div>
+            {% endif %}
+        </div>
+
+        <form method="POST">
+            {% csrf_token %}
+            <div class="buttons">
+                <button type="submit" class="btn btn-danger">
+                    🗑️ Yes, Delete Cluster
+                </button>
+                <a href="/cluster/{{ cluster.cluster_id }}/" class="btn btn-secondary">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

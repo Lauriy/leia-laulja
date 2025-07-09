@@ -1,0 +1,282 @@
+/* Base styles */
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    line-height: 1.6;
+}
+
+h1, h2, h3 {
+    color: #333;
+}
+
+/* Layout styles */
+.cluster-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.face-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 15px;
+}
+
+.tags-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 15px;
+}
+
+.clusters-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+/* Card styles */
+.cluster-card {
+    border: 1px solid #ddd;
+    padding: 15px;
+    text-align: center;
+    background: #f9f9f9;
+    border-radius: 5px;
+}
+
+.cluster-card img {
+    max-width: 100%;
+    height: 150px;
+    object-fit: cover;
+    margin-bottom: 10px;
+}
+
+.face-item {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: center;
+}
+
+.face-item img {
+    max-width: 100%;
+    height: auto;
+}
+
+.tag-card {
+    border: 1px solid #ddd;
+    padding: 15px;
+    background: #f9f9f9;
+    border-radius: 5px;
+}
+
+/* Delete confirmation styles */
+.delete-confirmation {
+    max-width: 600px;
+    margin: 50px auto;
+    padding: 20px;
+    border: 2px solid #dc3545;
+    border-radius: 8px;
+    background-color: #f8f9fa;
+}
+
+.warning {
+    background-color: #fff3cd;
+    border: 1px solid #ffeaa7;
+    border-radius: 4px;
+    padding: 15px;
+    margin: 20px 0;
+    color: #856404;
+}
+
+.cluster-preview {
+    display: flex;
+    gap: 10px;
+    margin: 20px 0;
+    flex-wrap: wrap;
+}
+
+.cluster-preview img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+.buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    color: white;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+.btn:hover {
+    opacity: 0.9;
+}
+
+/* Links */
+.cluster-link {
+    text-decoration: none;
+    color: #007cba;
+    font-weight: bold;
+}
+
+.cluster-link:hover {
+    text-decoration: underline;
+}
+
+.back-link {
+    display: inline-block;
+    margin-bottom: 20px;
+    color: #007cba;
+    text-decoration: none;
+}
+
+.back-link:hover {
+    text-decoration: underline;
+}
+
+/* Tags */
+.tag {
+    display: inline-block;
+    background: #e0e0e0;
+    padding: 5px 10px;
+    margin: 2px;
+    border-radius: 3px;
+    text-decoration: none;
+    color: #333;
+}
+
+.tag:hover {
+    background: #d0d0d0;
+}
+
+.existing-tags {
+    margin-top: 10px;
+}
+
+/* Forms */
+.tag-form {
+    background: #f5f5f5;
+    padding: 15px;
+    margin: 20px 0;
+    border-radius: 5px;
+}
+
+.tag-input {
+    width: 300px;
+    padding: 8px;
+    margin-right: 10px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+}
+
+.tag-btn {
+    padding: 8px 15px;
+    background: #007cba;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 3px;
+}
+
+.tag-btn:hover {
+    background: #005a8a;
+}
+
+/* Autocomplete */
+.autocomplete-suggestions {
+    position: absolute;
+    background: white;
+    border: 1px solid #ddd;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    border-radius: 3px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.autocomplete-suggestion {
+    padding: 8px;
+    cursor: pointer;
+}
+
+.autocomplete-suggestion:hover {
+    background: #f0f0f0;
+}
+
+/* Pagination */
+.pagination {
+    margin: 20px 0;
+    text-align: center;
+}
+
+.pagination a {
+    margin: 0 5px;
+    padding: 5px 10px;
+    text-decoration: none;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    color: #007cba;
+}
+
+.pagination a:hover {
+    background: #f0f0f0;
+}
+
+.pagination .current {
+    background: #007cba;
+    color: white;
+    padding: 5px 10px;
+    border: 1px solid #007cba;
+    border-radius: 3px;
+}
+
+/* Info styles */
+.cluster-info,
+.face-info,
+.tag-info {
+    font-size: 14px;
+    color: #666;
+    margin-top: 8px;
+}
+
+.stats {
+    color: #666;
+    margin-top: 10px;
+}
+
+/* Headers */
+.page-header,
+.tag-header {
+    margin-bottom: 30px;
+}
+
+.page-title,
+.tag-title {
+    color: #333;
+}
+
+/* Utilities */
+.no-tags {
+    text-align: center;
+    color: #666;
+    margin-top: 50px;
+}
