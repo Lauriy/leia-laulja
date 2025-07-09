@@ -7,7 +7,6 @@ from typing import List, Dict, Any, Optional
 import numpy as np
 import onnxruntime as ort
 from insightface.app import FaceAnalysis
-import queue
 import threading
 import concurrent.futures
 
@@ -65,15 +64,15 @@ class VideoFaceProcessor:
             if "CUDAExecutionProvider" in available_providers:
                 # Configure CUDA provider for better memory usage
                 cuda_provider_options = {
-                    'device_id': 0,
-                    'arena_extend_strategy': 'kSameAsRequested',
-                    'gpu_mem_limit': 5 * 1024 * 1024 * 1024,  # 5GB limit
-                    'cudnn_conv_algo_search': 'EXHAUSTIVE',
-                    'do_copy_in_default_stream': True,
+                    "device_id": 0,
+                    "arena_extend_strategy": "kSameAsRequested",
+                    "gpu_mem_limit": 5 * 1024 * 1024 * 1024,  # 5GB limit
+                    "cudnn_conv_algo_search": "EXHAUSTIVE",
+                    "do_copy_in_default_stream": True,
                 }
                 providers = [
-                    ('CUDAExecutionProvider', cuda_provider_options),
-                    'CPUExecutionProvider'
+                    ("CUDAExecutionProvider", cuda_provider_options),
+                    "CPUExecutionProvider",
                 ]
                 logger.info("Attempting to use GPU (CUDA) with optimized settings")
             else:
@@ -103,7 +102,12 @@ class VideoFaceProcessor:
         return str(timedelta(seconds=int(seconds)))
 
     def extract_face_thumbnail(
-        self, frame: np.ndarray, bbox: np.ndarray, frame_number: int, face_id: int, chunk_number: int
+        self,
+        frame: np.ndarray,
+        bbox: np.ndarray,
+        frame_number: int,
+        face_id: int,
+        chunk_number: int,
     ) -> Optional[str]:
         """
         Extract and save face thumbnail from frame.
@@ -161,10 +165,10 @@ class VideoFaceProcessor:
     def normalize_embedding(self, embedding: np.ndarray) -> np.ndarray:
         """
         Normalize face embedding for consistent comparison.
-        
+
         Args:
             embedding: Raw face embedding vector
-            
+
         Returns:
             Normalized embedding vector
         """
@@ -205,9 +209,9 @@ class VideoFaceProcessor:
 
                 # Extract and normalize face embedding
                 embedding = None
-                if hasattr(face, 'normed_embedding'):
+                if hasattr(face, "normed_embedding"):
                     embedding = face.normed_embedding.tolist()
-                elif hasattr(face, 'embedding'):
+                elif hasattr(face, "embedding"):
                     # Normalize the embedding manually if it's not already normalized
                     normalized_embedding = self.normalize_embedding(face.embedding)
                     embedding = normalized_embedding.tolist()
@@ -253,22 +257,28 @@ class VideoFaceProcessor:
             List of face detection results for the batch
         """
         batch_results = []
-        
+
         # Process frames in smaller sub-batches to avoid memory issues
         sub_batch_size = min(8, len(frames_batch))
-        
+
         for i in range(0, len(frames_batch), sub_batch_size):
-            sub_batch = frames_batch[i:i + sub_batch_size]
-            
+            sub_batch = frames_batch[i : i + sub_batch_size]
+
             for frame, frame_number, fps in sub_batch:
                 # Process each frame - InsightFace doesn't support true batching
-                frame_results = self.detect_faces_in_frame(frame, frame_number, fps, chunk_number)
+                frame_results = self.detect_faces_in_frame(
+                    frame, frame_number, fps, chunk_number
+                )
                 batch_results.extend(frame_results)
-        
+
         return batch_results
 
     def process_video_chunk_pipeline(
-        self, start_time: float, end_time: float, frame_skip: int = 30, chunk_number: int = 1
+        self,
+        start_time: float,
+        end_time: float,
+        frame_skip: int = 30,
+        chunk_number: int = 1,
     ) -> List[Dict[str, Any]]:
         """
         Process a chunk of the video with pipeline approach for better GPU utilization.
@@ -314,7 +324,9 @@ class VideoFaceProcessor:
 
                 # Process batch when it's full
                 if len(frames_batch) >= self.batch_size:
-                    batch_results = self.detect_faces_in_batch(frames_batch, chunk_number)
+                    batch_results = self.detect_faces_in_batch(
+                        frames_batch, chunk_number
+                    )
                     chunk_results.extend(batch_results)
                     frames_batch = []
 
@@ -331,11 +343,17 @@ class VideoFaceProcessor:
             chunk_results.extend(batch_results)
 
         cap.release()
-        logger.info(f"Chunk {chunk_number} complete: {len(chunk_results)} faces detected")
+        logger.info(
+            f"Chunk {chunk_number} complete: {len(chunk_results)} faces detected"
+        )
         return chunk_results
 
     def process_video_chunk(
-        self, start_time: float, end_time: float, frame_skip: int = 30, chunk_number: int = 1
+        self,
+        start_time: float,
+        end_time: float,
+        frame_skip: int = 30,
+        chunk_number: int = 1,
     ) -> List[Dict[str, Any]]:
         """
         Process a chunk of the video between start_time and end_time.
@@ -351,11 +369,15 @@ class VideoFaceProcessor:
         """
         # Initialize face detector for this thread
         self.initialize_face_detector()
-        
-        # Use pipeline approach for better GPU utilization
-        return self.process_video_chunk_pipeline(start_time, end_time, frame_skip, chunk_number)
 
-    def process_video_parallel(self, chunk_duration: int = 600, frame_skip: int = 30) -> None:
+        # Use pipeline approach for better GPU utilization
+        return self.process_video_chunk_pipeline(
+            start_time, end_time, frame_skip, chunk_number
+        )
+
+    def process_video_parallel(
+        self, chunk_duration: int = 600, frame_skip: int = 30
+    ) -> None:
         """
         Process the entire video in parallel chunks for maximum GPU utilization.
 
@@ -374,7 +396,9 @@ class VideoFaceProcessor:
         cap.release()
 
         logger.info(f"Video duration: {timedelta(seconds=int(duration))}")
-        logger.info(f"Processing with frame skip: {frame_skip} (every {frame_skip / fps:.1f} seconds)")
+        logger.info(
+            f"Processing with frame skip: {frame_skip} (every {frame_skip / fps:.1f} seconds)"
+        )
         logger.info(f"Batch size: {self.batch_size} frames")
         logger.info(f"Max parallel chunks: {self.max_parallel_chunks}")
         logger.info(f"Thumbnails will be saved to: {self.thumbnails_dir}")
@@ -393,13 +417,18 @@ class VideoFaceProcessor:
         logger.info(f"Total chunks to process: {len(chunks)}")
 
         # Process chunks in parallel
-        with concurrent.futures.ThreadPoolExecutor(max_workers=self.max_parallel_chunks) as executor:
+        with concurrent.futures.ThreadPoolExecutor(
+            max_workers=self.max_parallel_chunks
+        ) as executor:
             futures = []
-            
+
             for start_time, end_time, chunk_num in chunks:
                 future = executor.submit(
                     self.process_video_chunk,
-                    start_time, end_time, frame_skip, chunk_num
+                    start_time,
+                    end_time,
+                    frame_skip,
+                    chunk_num,
                 )
                 futures.append((future, chunk_num))
 
@@ -407,22 +436,26 @@ class VideoFaceProcessor:
             for future, chunk_num in futures:
                 try:
                     chunk_results = future.result()
-                    
+
                     # Thread-safe results addition
                     with self.results_lock:
                         self.results.extend(chunk_results)
-                    
+
                     # Save intermediate results
                     self.save_results(f"intermediate_results_chunk_{chunk_num}.json")
-                    
-                    logger.info(f"Chunk {chunk_num} complete. Total faces detected: {len(self.results)}")
-                    
+
+                    logger.info(
+                        f"Chunk {chunk_num} complete. Total faces detected: {len(self.results)}"
+                    )
+
                 except Exception as e:
                     logger.error(f"Error processing chunk {chunk_num}: {e}")
 
         # Save final results
         self.save_results()
-        logger.info(f"Video processing complete! Total faces detected: {len(self.results)}")
+        logger.info(
+            f"Video processing complete! Total faces detected: {len(self.results)}"
+        )
         logger.info(f"Thumbnails saved in: {self.thumbnails_dir}")
 
     def process_video(self, chunk_duration: int = 600, frame_skip: int = 30) -> None:
@@ -453,7 +486,9 @@ class VideoFaceProcessor:
                 "batch_size": self.batch_size,
                 "max_parallel_chunks": self.max_parallel_chunks,
                 "embedding_dimension": 512,  # InsightFace typically uses 512-dimensional embeddings
-                "chunks_processed": len(set(result["chunk_number"] for result in self.results)),
+                "chunks_processed": len(
+                    set(result["chunk_number"] for result in self.results)
+                ),
             }
 
             output_data = {"metadata": metadata, "faces": self.results}
@@ -472,11 +507,11 @@ def main():
 
     # Use aggressive settings for maximum GPU utilization
     processor = VideoFaceProcessor(
-        video_path, 
-        output_path, 
-        thumbnails_dir, 
+        video_path,
+        output_path,
+        thumbnails_dir,
         batch_size=32,  # Increased batch size
-        max_parallel_chunks=3  # Process 3 chunks in parallel
+        max_parallel_chunks=3,  # Process 3 chunks in parallel
     )
 
     # Process video with 10-minute chunks, processing every 30th frame
