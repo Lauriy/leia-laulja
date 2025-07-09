@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>All Faces</h1>
+
+<div class="filters">
+    <form method="get" class="filter-form">
+        <input type="text" name="timestamp" placeholder="Filter by timestamp (e.g., 1:23:45)" value="{{ timestamp_filter }}">
+        <input type="number" name="min_confidence" placeholder="Min confidence (0.0-1.0)" step="0.01" value="{{ min_confidence }}">
+        <button type="submit">Filter</button>
+        <a href="/faces/" class="clear-btn">Clear</a>
+    </form>
+</div>
+
+<div class="results-info">
+    <p>Showing {{ faces|length }} faces</p>
+</div>
+
+<div class="faces-grid">
+    {% for face in faces %}
+    <div class="face-item">
+        <div class="face-thumbnail">
+            {% if face.thumbnail_path %}
+                <a href="/cluster/{{ face.cluster.cluster_id }}/">
+                    <img src="/{{ face.thumbnail_path }}" alt="Face thumbnail">
+                </a>
+            {% else %}
+                <div class="no-thumbnail">No thumbnail</div>
+            {% endif %}
+        </div>
+        <div class="face-info">
+            <div class="timestamp">{{ face.timestamp }}</div>
+            <div class="confidence">Confidence: {{ face.confidence|floatformat:3 }}</div>
+            <div class="cluster-link">
+                <a href="/cluster/{{ face.cluster.cluster_id }}/">Cluster {{ face.cluster.cluster_id }}</a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <p>No faces found matching your criteria.</p>
+    {% endfor %}
+</div>
+
+<div class="pagination">
+    {% if faces.has_previous %}
+        <a href="?page={{ faces.previous_page_number }}{% if timestamp_filter %}&timestamp={{ timestamp_filter }}{% endif %}{% if min_confidence %}&min_confidence={{ min_confidence }}{% endif %}">&laquo; Previous</a>
+    {% endif %}
+
+    Page {{ faces.number }} of {{ faces.paginator.num_pages }}
+
+    {% if faces.has_next %}
+        <a href="?page={{ faces.next_page_number }}{% if timestamp_filter %}&timestamp={{ timestamp_filter }}{% endif %}{% if min_confidence %}&min_confidence={{ min_confidence }}{% endif %}">Next &raquo;</a>
+    {% endif %}
+</div>
+{% endblock %}
+```

@@ -196,6 +196,43 @@ def delete_cluster(request, cluster_id):
     )
 
 
+@app.route("/faces/")
+def faces_list(request):
+    """List all faces with timestamp filtering"""
+    faces = (
+        FaceAssignment.objects.select_related("cluster").all().order_by("-confidence")
+    )
+
+    # Filter by timestamp if provided
+    timestamp_filter = request.GET.get("timestamp", "").strip()
+    if timestamp_filter:
+        faces = faces.filter(timestamp=timestamp_filter)
+
+    # Filter by minimum confidence if provided
+    min_confidence = request.GET.get("min_confidence", "").strip()
+    if min_confidence:
+        try:
+            min_conf = float(min_confidence)
+            faces = faces.filter(confidence__gte=min_conf)
+        except ValueError:
+            pass
+
+    paginator = Paginator(faces, 50)
+    page = request.GET.get("page")
+    faces_page = paginator.get_page(page)
+
+    return render(
+        request,
+        "faces_list.html",
+        {
+            "faces": faces_page,
+            "total_faces": FaceAssignment.objects.count(),
+            "timestamp_filter": timestamp_filter,
+            "min_confidence": min_confidence,
+        },
+    )
+
+
 @app.route("/tag/<int:tag_id>/")
 def tag_detail(request, tag_id):
     """View all clusters with this tag"""
