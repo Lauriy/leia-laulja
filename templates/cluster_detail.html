@@ -76,7 +76,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (query.length >= 2) {
             debounceTimer = setTimeout(() => {
-                fetch(`/tags/autocomplete/?q=${encodeURIComponent(query)}`)
+                fetch(`/api/tags/search/?q=${encodeURIComponent(query)}`)
                     .then(response => response.json())
                     .then(data => {
                         suggestions.innerHTML = '';
