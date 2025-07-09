@@ -14,8 +14,8 @@ server {
     include nginxconfig.io/security.conf;
 
     # Serve thumbnails directly from nginx with optimal caching
-    location /thumbnails/ {
-        alias /home/lauri/leia-laulja/face_thumbnails/;
+    location /face_thumbnails/ {
+        alias /home/leialaulja/leia-laulja/face_thumbnails/;
 
         # Optimal caching for thumbnails
         expires 1y;
@@ -40,7 +40,7 @@ server {
     }
 
     location /static/ {
-        alias /home/lauri/leia-laulja/static/;
+        alias /home/leialaulja/leia-laulja/static/;
         # expires 1y;
         # add_header Cache-Control "public, immutable, no-transform";
     }
